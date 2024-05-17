@@ -21,6 +21,14 @@ var _names := PackedStringArray()
 var _current_tab := 0
 
 
+func to_dict() -> Dictionary:
+	return {"type": resource_name, "names": names, "current_tab": current_tab}
+
+func from_dict(dict: Dictionary):
+	self.names = dict["names"]
+	self.current_tab = dict["current_tab"]
+
+
 func _init() -> void:
 	resource_name = "Tabs"
 

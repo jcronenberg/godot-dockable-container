@@ -9,27 +9,27 @@
 [sub_resource type="Resource" id="Resource_8aoc2"]
 resource_name = "Tabs"
 script = ExtResource("5")
-names = PackedStringArray("Control0")
-current_tab = 0
+names = PackedStringArray("Control0", "Control2")
+current_tab = 1
 
-[sub_resource type="Resource" id="Resource_6kjom"]
+[sub_resource type="Resource" id="Resource_es8gk"]
 resource_name = "Tabs"
 script = ExtResource("5")
-names = PackedStringArray("Control1", "Control2")
+names = PackedStringArray("Control1")
 current_tab = 0
 
-[sub_resource type="Resource" id="Resource_hl8y1"]
+[sub_resource type="Resource" id="Resource_kpoyf"]
 resource_name = "Split"
 script = ExtResource("4_yhgfb")
-direction = 1
+direction = 0
 percent = 0.5
 first = SubResource("Resource_8aoc2")
-second = SubResource("Resource_6kjom")
+second = SubResource("Resource_es8gk")
 
 [sub_resource type="Resource" id="Resource_ybwqe"]
 resource_name = "Layout"
 script = ExtResource("2")
-root = SubResource("Resource_hl8y1")
+root = SubResource("Resource_kpoyf")
 hidden_tabs = {}
 
 [sub_resource type="Resource" id="Resource_ntwfj"]
@@ -137,16 +137,16 @@ script = ExtResource("1")
 layout = SubResource("Resource_ybwqe")
 
 [node name="Control0" type="ColorRect" parent="DockableContainers/DockableContainer"]
+visible = false
 layout_mode = 2
+
+[node name="Control2" type="ColorRect" parent="DockableContainers/DockableContainer"]
+layout_mode = 2
+color = Color(0.533333, 0.380392, 0.380392, 1)
 
 [node name="Control1" type="ColorRect" parent="DockableContainers/DockableContainer"]
 layout_mode = 2
 color = Color(0.141176, 0.0745098, 0.603922, 1)
-
-[node name="Control2" type="ColorRect" parent="DockableContainers/DockableContainer"]
-visible = false
-layout_mode = 2
-color = Color(0.533333, 0.380392, 0.380392, 1)
 
 [node name="Separator" type="ColorRect" parent="DockableContainers"]
 custom_minimum_size = Vector2(50, 0)

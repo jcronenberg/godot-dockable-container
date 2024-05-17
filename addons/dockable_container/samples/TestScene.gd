@@ -1,6 +1,6 @@
 extends VBoxContainer
 
-const SAVED_LAYOUT_PATH := "user://layout.tres"
+const SAVED_LAYOUT_PATH := "user://layout.json"
 
 @onready var _container := $DockableContainers/DockableContainer as DockableContainer
 @onready var _clone_control := $HBoxContainer/ControlPrefab as ColorRect
@@ -38,16 +38,14 @@ func _on_add_pressed() -> void:
 
 
 func _on_save_pressed() -> void:
-	if ResourceSaver.save(_container.layout, SAVED_LAYOUT_PATH) != OK:
-		print("ERROR")
+	var file = FileAccess.open(SAVED_LAYOUT_PATH, FileAccess.WRITE)
+	file.store_string(JSON.stringify(_container.layout.to_dict(), "\t"))
 
 
 func _on_load_pressed() -> void:
-	var res = load(SAVED_LAYOUT_PATH)
-	if res:
-		_container.set_layout(res.clone())
-	else:
-		print("Error")
+	var file = FileAccess.open(SAVED_LAYOUT_PATH, FileAccess.READ)
+	var dict = JSON.parse_string(file.get_as_text())
+	_container.layout.from_dict(dict)
 
 
 func _on_control_rename_button_pressed(control: Control) -> void:

@@ -12,6 +12,15 @@ var parent: DockableLayoutSplit:
 var _parent_ref := WeakRef.new()
 
 
+func from_dict(_dict: Dictionary):
+	push_error("Unreachable")
+
+
+func to_dict() -> Dictionary:
+	push_error("Unreachable")
+	return {}
+
+
 func emit_tree_changed() -> void:
 	var node := self
 	while node:

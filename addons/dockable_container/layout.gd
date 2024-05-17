@@ -31,6 +31,24 @@ var _leaf_by_node_name: Dictionary
 var _root: DockableLayoutNode = DockableLayoutPanel.new()
 
 
+func to_dict() -> Dictionary:
+	return root.to_dict()
+
+func from_dict(dict: Dictionary):
+	if not dict.has("type"):
+		push_error("Invalid dict")
+		return
+
+	if dict["type"] == "Split":
+		var split = DockableLayoutSplit.new()
+		split.from_dict(dict)
+		root = split
+	elif dict["type"] == "Tabs":
+		var tabs = DockableLayoutPanel.new()
+		tabs.from_dict(dict)
+		root = tabs
+
+
 func _init() -> void:
 	resource_name = "Layout"
 

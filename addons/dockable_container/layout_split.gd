@@ -29,6 +29,25 @@ var _percent := 0.5
 var _first: DockableLayoutNode
 var _second: DockableLayoutNode
 
+func to_dict() -> Dictionary:
+	return {"type": resource_name, "direction": direction, "percent": percent, "first": first.to_dict(), "second": second.to_dict()}
+
+func from_dict(dict: Dictionary):
+	self.direction = dict["direction"]
+	self.percent = dict["percent"]
+	for pos in ["first", "second"]:
+		if dict[pos]:
+			if dict[pos]["type"] == "Split":
+				var split = DockableLayoutSplit.new()
+				split.from_dict(dict[pos])
+				set(pos, split)
+			elif dict[pos]["type"] == "Tabs":
+				var tabs = DockableLayoutPanel.new()
+				tabs.from_dict(dict[pos])
+				set(pos, tabs)
+			else:
+				push_error("Unreachable")
+
 
 func _init() -> void:
 	resource_name = "Split"
