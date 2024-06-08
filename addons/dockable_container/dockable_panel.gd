@@ -60,7 +60,7 @@ func track_nodes(nodes: Array[Control], new_leaf: DockableLayoutPanel) -> void:
 	for i in nodes.size():
 		var ref_control := get_child(i) as DockableReferenceControl
 		ref_control.reference_to = nodes[i]
-		set_tab_title(i, nodes[i].name)
+		set_tab_title(i, nodes[i].panel_name)
 	set_leaf(new_leaf)
 	_handle_tab_visibility()
 
