@@ -25,9 +25,31 @@ var _leaf: DockableLayoutPanel
 var _show_tabs := true
 var _hide_single_tab := false
 
+## Custom buttons for DreamDeck that are shown in edit mode
+@onready var _edit_buttons: LayoutEditButtons = preload("res://src/layout/layout_edit_buttons.tscn").instantiate()
+
 
 func _ready() -> void:
 	drag_to_rearrange_enabled = true
+
+	# Add custom DreamDeck edit buttons
+	_edit_buttons.position = Vector2(-_edit_buttons.custom_minimum_size.x, 0)
+	get_tab_bar().add_child(_edit_buttons)
+	_edit_buttons.connect("edit_panel_button_pressed", edit_current_panel)
+	_edit_buttons.connect("add_panel_button_pressed", add_panel)
+	_edit_buttons.connect("delete_panel_button_pressed", delete_panel)
+
+
+func edit_current_panel():
+	PluginCoordinator.edit_panel(get_current_tab_control().reference_to)
+
+
+func add_panel():
+	PluginCoordinator.add_panel(get_leaf())
+
+
+func delete_panel():
+	get_current_tab_control().reference_to.request_deletion()
 
 
 func _enter_tree() -> void:
@@ -60,7 +82,7 @@ func track_nodes(nodes: Array[Control], new_leaf: DockableLayoutPanel) -> void:
 	for i in nodes.size():
 		var ref_control := get_child(i) as DockableReferenceControl
 		ref_control.reference_to = nodes[i]
-		set_tab_title(i, nodes[i].name)
+		set_tab_title(i, nodes[i].panel_name)
 	set_leaf(new_leaf)
 	_handle_tab_visibility()
 
