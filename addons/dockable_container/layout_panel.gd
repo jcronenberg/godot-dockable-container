@@ -1,4 +1,3 @@
-@tool
 class_name DockableLayoutPanel
 extends DockableLayoutNode
 ## DockableLayout leaf nodes, defining tabs
