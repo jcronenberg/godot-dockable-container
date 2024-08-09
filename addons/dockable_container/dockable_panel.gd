@@ -39,6 +39,9 @@ func _ready() -> void:
 	_edit_buttons.connect("add_panel_button_pressed", add_panel)
 	_edit_buttons.connect("delete_panel_button_pressed", delete_panel)
 
+	# DreamDeck custom theme variation
+	theme_type_variation = "LayoutTabContainer"
+
 
 func edit_current_panel():
 	PluginCoordinator.edit_panel(get_current_tab_control().reference_to)
