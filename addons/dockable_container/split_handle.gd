@@ -36,7 +36,7 @@ func _gui_input(event: InputEvent) -> void:
 		if event.double_click:
 			layout_split.percent = 0.5
 	elif _dragging and event is InputEventMouseMotion:
-		var mouse_in_parent := get_parent_control().get_local_mouse_position()
+		var mouse_in_parent: Vector2i = position + event.position
 		if layout_split.is_horizontal():
 			layout_split.percent = (
 				(mouse_in_parent.x - _parent_rect.position.x) / _parent_rect.size.x

@@ -109,11 +109,10 @@ func _notification(what: int) -> void:
 func _input(event: InputEvent) -> void:
 	assert(get_viewport().gui_is_dragging(), "FIXME: should only be called when dragging")
 	if event is InputEventMouseMotion:
-		var local_position := get_local_mouse_position()
 		var panel: DockablePanel
 		for i in range(1, _panel_container.get_child_count()):
 			var p := _panel_container.get_child(i) as DockablePanel
-			if p.get_rect().has_point(local_position):
+			if p.get_rect().has_point(event.position):
 				panel = p
 				break
 		_drag_panel = panel
