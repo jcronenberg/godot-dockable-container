@@ -25,19 +25,18 @@ var _leaf: DockableLayoutPanel
 var _show_tabs := true
 var _hide_single_tab := false
 
-## Custom buttons for DreamDeck that are shown in edit mode
-@onready var _edit_buttons: LayoutEditButtons = preload("res://src/layout/layout_edit_buttons.tscn").instantiate()
-
 
 func _ready() -> void:
 	drag_to_rearrange_enabled = true
 
-	# Add custom DreamDeck edit buttons
-	_edit_buttons.position = Vector2(-_edit_buttons.custom_minimum_size.x, 0)
-	get_tab_bar().add_child(_edit_buttons)
-	_edit_buttons.connect("edit_panel_button_pressed", edit_current_panel)
-	_edit_buttons.connect("add_panel_button_pressed", add_panel)
-	_edit_buttons.connect("delete_panel_button_pressed", delete_panel)
+	var options: PopupMenu = PopupMenu.new()
+	options.add_item("Edit panel")
+	options.add_item("Add panel")
+	options.add_item("Delete panel")
+	options.id_pressed.connect(_on_options_id_pressed)
+	options.size.y = 0
+	get_tab_bar().add_child(options)
+	set_popup(options)
 
 	# DreamDeck custom theme variation
 	theme_type_variation = "LayoutTabContainer"
@@ -98,6 +97,7 @@ func get_child_rect() -> Rect2:
 func set_leaf(value: DockableLayoutPanel) -> void:
 	if get_tab_count() > 0 and value:
 		current_tab = clampi(value.current_tab, 0, get_tab_count() - 1)
+
 	_leaf = value
 
 
@@ -131,3 +131,13 @@ func _handle_tab_visibility() -> void:
 		tabs_visible = false
 	else:
 		tabs_visible = _show_tabs
+
+
+func _on_options_id_pressed(id: int) -> void:
+	match id:
+		0:
+			edit_current_panel()
+		1:
+			add_panel()
+		2:
+			delete_panel()
