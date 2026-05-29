@@ -11,21 +11,6 @@ var _draw_margin := DRAW_NOTHING
 var _should_split := false
 
 
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_MOUSE_EXIT:
-		_draw_margin = DRAW_NOTHING
-		queue_redraw()
-	elif what == NOTIFICATION_MOUSE_ENTER and not _should_split:
-		_draw_margin = DRAW_CENTERED
-		queue_redraw()
-
-
-func _gui_input(event: InputEvent) -> void:
-	if _should_split and event is InputEventMouseMotion:
-		_draw_margin = _find_hover_margin(event.position)
-		queue_redraw()
-
-
 func _draw() -> void:
 	var rect: Rect2
 	if _draw_margin == DRAW_NOTHING:
@@ -50,12 +35,34 @@ func set_enabled(enabled: bool, should_split: bool = true) -> void:
 	visible = enabled
 	_should_split = should_split
 	if enabled:
-		_draw_margin = DRAW_NOTHING
-		queue_redraw()
+		clear_hover()
 
 
 func get_hover_margin() -> int:
 	return _draw_margin
+
+
+func clear_hover() -> void:
+	_draw_margin = DRAW_NOTHING
+	mouse_filter = MOUSE_FILTER_IGNORE
+	queue_redraw()
+
+
+func _can_drop_data(pos: Vector2, data) -> bool:
+	return get_parent()._can_drop_data(pos, data)
+
+
+func _drop_data(pos: Vector2, data) -> void:
+	get_parent()._drop_data(pos, data)
+
+
+func update_hover(local_pos: Vector2) -> void:
+	mouse_filter = MOUSE_FILTER_STOP
+	if _should_split:
+		_draw_margin = _find_hover_margin(local_pos)
+	else:
+		_draw_margin = DRAW_CENTERED
+	queue_redraw()
 
 
 func _find_hover_margin(point: Vector2) -> int:

@@ -73,6 +73,7 @@ func _init() -> void:
 
 
 func _ready() -> void:
+	add_to_group("dockable_containers")
 	set_process_input(false)
 	_panel_container.name = "_panel_container"
 	add_child(_panel_container)
@@ -82,7 +83,7 @@ func _ready() -> void:
 	_panel_container.add_child(_split_container)
 
 	_drag_n_drop_panel.name = "_drag_n_drop_panel"
-	_drag_n_drop_panel.mouse_filter = MOUSE_FILTER_PASS
+	_drag_n_drop_panel.mouse_filter = MOUSE_FILTER_IGNORE
 	_drag_n_drop_panel.visible = false
 	add_child(_drag_n_drop_panel)
 
@@ -109,22 +110,47 @@ func _notification(what: int) -> void:
 func _input(event: InputEvent) -> void:
 	assert(get_viewport().gui_is_dragging(), "FIXME: should only be called when dragging")
 	if event is InputEventMouseMotion:
+		if _layout.root.is_empty():
+			fit_child_in_rect(_drag_n_drop_panel, Rect2(Vector2.ZERO, size))
+			if get_global_rect().has_point(event.position):
+				_drag_n_drop_panel.update_hover(_drag_n_drop_panel.get_local_mouse_position())
+			else:
+				_drag_n_drop_panel.clear_hover()
+			return
 		var panel: DockablePanel
 		for i in range(1, _panel_container.get_child_count()):
 			var p := _panel_container.get_child(i) as DockablePanel
-			if p.get_rect().has_point(event.position):
+			if p.get_global_rect().has_point(event.position):
 				panel = p
 				break
 		_drag_panel = panel
 		if not panel:
+			_drag_n_drop_panel.clear_hover()
 			return
+		var tab_ctrl := panel.get_current_tab_control()
+		if tab_ctrl is DockableReferenceControl:
+			var ref := (tab_ctrl as DockableReferenceControl).reference_to
+			if is_instance_valid(ref):
+				var tab_contains_nested_container := ref is DockableContainer
+				if not tab_contains_nested_container:
+					for nested_container in get_tree().get_nodes_in_group("dockable_containers"):
+						if nested_container != self and ref.is_ancestor_of(nested_container):
+							tab_contains_nested_container = true
+							break
+				if tab_contains_nested_container:
+					_drag_n_drop_panel.clear_hover()
+					return
 		fit_child_in_rect(_drag_n_drop_panel, panel.get_child_rect())
+		if _drag_n_drop_panel.get_global_rect().has_point(event.position):
+			_drag_n_drop_panel.update_hover(_drag_n_drop_panel.get_local_mouse_position())
+		else:
+			_drag_n_drop_panel.clear_hover()
 
 
 func _child_entered_tree(node: Node) -> void:
 	if node == _panel_container or node == _drag_n_drop_panel:
 		return
-	_drag_n_drop_panel.move_to_front()
+	_drag_n_drop_panel.move_to_front.call_deferred()
 	_track_and_add_node(node)
 
 
@@ -148,14 +174,17 @@ func _drop_data(_position: Vector2, data) -> void:
 	var moved_tab = from_node.get_tab_control(tab_index)
 	if moved_tab is DockableReferenceControl:
 		moved_tab = moved_tab.reference_to
+	if moved_tab.is_ancestor_of(self):
+		return
 	if not _is_managed_node(moved_tab):
 		moved_tab.get_parent().remove_child(moved_tab)
 		add_child(moved_tab)
-
 	if _drag_panel != null:
 		var margin := _drag_n_drop_panel.get_hover_margin()
-		_layout.split_leaf_with_node(_drag_panel.leaf, moved_tab, margin)
-
+		if margin == DragNDropPanel.DRAW_NOTHING:
+			_layout.move_node_to_leaf(moved_tab, _drag_panel.leaf, _drag_panel.leaf.names.size())
+		else:
+			_layout.split_leaf_with_node(_drag_panel.leaf, moved_tab, margin)
 	_layout_dirty = true
 	queue_sort()
 
@@ -183,6 +212,10 @@ func set_control_as_current_tab(control: Control) -> void:
 	if not panel:
 		return
 	panel.current_tab = clampi(position_in_leaf, 0, panel.get_tab_count() - 1)
+
+
+func set_split_handles_visibility(visible: bool) -> void:
+	_split_container.visible = visible
 
 
 func set_layout(value: DockableLayout) -> void:
@@ -219,10 +252,9 @@ func is_control_hidden(child: Control) -> bool:
 
 func get_tabs() -> Array[Control]:
 	var tabs: Array[Control] = []
-	for i in get_child_count():
-		var child := get_child(i)
-		if _is_managed_node(child):
-			tabs.append(child)
+	for key in _children_names:
+		if key is Control:
+			tabs.append(key)
 	return tabs
 
 

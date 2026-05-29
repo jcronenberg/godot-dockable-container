@@ -46,8 +46,17 @@ func edit_current_panel():
 	PluginCoordinator.edit_panel(get_current_tab_control().reference_to)
 
 
+func get_container() -> DockableContainer:
+	var node = get_parent()
+	while node:
+		if node is DockableContainer:
+			return node as DockableContainer
+		node = node.get_parent()
+	return null
+
+
 func add_panel():
-	PluginCoordinator.add_panel(get_leaf())
+	PluginCoordinator.add_panel(get_leaf(), get_container())
 
 
 func delete_panel():
