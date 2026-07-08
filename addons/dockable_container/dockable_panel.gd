@@ -24,19 +24,20 @@ var hide_single_tab := false:
 var _leaf: DockableLayoutPanel
 var _show_tabs := true
 var _hide_single_tab := false
+var _options: PopupMenu
 
 
 func _ready() -> void:
 	drag_to_rearrange_enabled = true
 
-	var options: PopupMenu = PopupMenu.new()
-	options.add_item("Edit panel")
-	options.add_item("Add panel")
-	options.add_item("Delete panel")
-	options.id_pressed.connect(_on_options_id_pressed)
-	options.size.y = 0
-	get_tab_bar().add_child(options)
-	set_popup(options)
+	_options = PopupMenu.new()
+	_options.add_item("Edit panel")
+	_options.add_item("Add panel")
+	_options.add_item("Delete panel")
+	_options.id_pressed.connect(_on_options_id_pressed)
+	_options.size.y = 0
+	get_tab_bar().add_child(_options)
+	_handle_tab_visibility()
 
 	# DreamDeck custom theme variation
 	theme_type_variation = "LayoutTabContainer"
@@ -140,6 +141,8 @@ func _handle_tab_visibility() -> void:
 		tabs_visible = false
 	else:
 		tabs_visible = _show_tabs
+
+	set_popup(_options if tabs_visible else null)
 
 
 func _on_options_id_pressed(id: int) -> void:
