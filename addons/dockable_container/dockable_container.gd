@@ -167,7 +167,10 @@ func _can_drop_data(_position: Vector2, data) -> bool:
 func _drop_data(_position: Vector2, data) -> void:
 	var from_node := get_node(data.from_path)
 	if from_node is TabBar:
-		from_node = from_node.get_parent()
+		# TabBar's parent is TabContainer's internal HBoxContainer (holds the tab
+		# bar and popup button), not the TabContainer itself, so walk up to it.
+		while from_node != null and not from_node is TabContainer:
+			from_node = from_node.get_parent()
 	if from_node == _drag_panel and _drag_panel.get_child_count() == 1:
 		return
 	var tab_index = data.tabc_element if data.has("tabc_element") else data.tab_index
